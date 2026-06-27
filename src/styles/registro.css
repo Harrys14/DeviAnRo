@@ -1,0 +1,97 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.registro-container {
+  min-height: 100vh;
+  display: flex;
+  font-family: Arial, sans-serif;
+}
+
+/* IZQUIERDA */
+.registro-left {
+  flex: 1;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 60px;
+}
+
+.registro-left h1 {
+  font-size: 40px;
+  color: #ff4d4d;
+  margin-bottom: 10px;
+}
+
+.registro-left p {
+  color: #555;
+  margin-bottom: 20px;
+}
+
+/* FORM */
+.registro-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  max-width: 350px;
+}
+
+.registro-form input {
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  outline: none;
+}
+
+.registro-form button {
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  background: #ff4d4d;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.registro-form button:hover {
+  background: #e63e3e;
+}
+
+/* LINK */
+.registro-link {
+  margin-top: 15px;
+  font-size: 14px;
+}
+
+.registro-link a {
+  color: #ff4d4d;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+/* DERECHA */
+.registro-right {
+  flex: 1;
+  background: linear-gradient(135deg, #ff4d4d, #ff0000);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 100px;
+}
+
+.registro-right h2 {
+  font-size: 32px;
+  margin-bottom: 10px;
+}
+
+.registro-right p {
+  font-size: 16px;
+  opacity: 0.9;
+}

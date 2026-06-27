@@ -1,0 +1,106 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.carrito-container {
+  max-width: 1100px;
+  margin: auto;
+  padding: 30px;
+  font-family: "Segoe UI", Arial, sans-serif;
+  background: #f8f9fa;
+  min-height: 100vh;
+}
+
+.carrito-title {
+  font-size: 40px;
+  color: #e53935;
+  margin-bottom: 25px;
+}
+
+.carrito-vacio {
+  font-size: 20px;
+  color: #666;
+}
+
+.carrito-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.carrito-item {
+  display: flex;
+  gap: 20px;
+  background: white;
+  padding: 20px;
+  border-radius: 20px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+}
+
+.carrito-item img {
+  width: 160px;
+  height: 140px;
+  object-fit: cover;
+  border-radius: 15px;
+}
+
+.carrito-info {
+  flex: 1;
+}
+
+.carrito-info h3 {
+  font-size: 22px;
+  margin-bottom: 8px;
+}
+
+.carrito-info p {
+  color: #666;
+  margin-bottom: 10px;
+}
+
+.carrito-precio {
+  font-size: 20px;
+  font-weight: bold;
+  color: #e53935;
+  margin-bottom: 10px;
+}
+
+.carrito-controles {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.carrito-controles button {
+  width: 35px;
+  height: 35px;
+  border: none;
+  background: #e53935;
+  color: white;
+  font-size: 18px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.carrito-eliminar {
+  background: #666;
+  color: white;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.carrito-eliminar:hover {
+  background: #444;
+}
+
+.carrito-total {
+  margin-top: 30px;
+  text-align: right;
+  font-size: 28px;
+  color: #e53935;
+}

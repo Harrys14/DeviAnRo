@@ -1,0 +1,165 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+.Login-page{
+    min-height:100vh;
+    background:linear-gradient(135deg,#ffebee,#f8f9fa);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-family:'Segoe UI', Arial, sans-serif;
+    overflow:hidden;
+}
+
+.Login-container{
+    width:100%;
+    height:100vh;
+    display:flex;
+}
+
+/* LEFT */
+.Login-left{
+    flex:1;
+    background:#E53935;
+    color:white;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    padding:60px;
+}
+
+/* TEXTOS */
+.Login-title{
+    font-size:72px;
+    margin-bottom:20px;
+}
+
+.Login-description{
+    font-size:24px;
+    text-align:center;
+    max-width:500px;
+    line-height:1.6;
+}
+
+/* RIGHT */
+.Login-right{
+    flex:1;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:40px;
+}
+
+/* CLERK CONTAINER */
+.Login-box{
+    width:100%;
+    max-width:500px;
+}
+
+.Login-heading{
+    color:#333;
+    font-size:42px;
+    margin-bottom:35px;
+    text-align:center;
+}
+
+/* si en algún momento usas form manual */
+.Login-form{
+    background:white;
+    padding:45px;
+    border-radius:25px;
+    box-shadow:0 10px 30px rgba(0,0,0,.1);
+}
+
+/* inputs manuales */
+.Login-input-group{
+    margin-bottom:20px;
+}
+
+.Login-input-group label{
+    display:block;
+    margin-bottom:8px;
+    font-weight:600;
+    color:#333;
+}
+
+.Login-input{
+    width:100%;
+    padding:16px;
+    border:2px solid #ddd;
+    border-radius:12px;
+    font-size:16px;
+    outline:none;
+    transition:.3s;
+}
+
+.Login-input:focus{
+    border-color:#E53935;
+}
+
+.Login-btn-primary{
+    width:100%;
+    padding:16px;
+    background:#E53935;
+    color:white;
+    border:none;
+    border-radius:12px;
+    font-size:18px;
+    font-weight:bold;
+    cursor:pointer;
+    transition:.3s;
+}
+
+.Login-btn-primary:hover{
+    background:#c62828;
+}
+
+.Login-register{
+    text-align:center;
+    margin-top:25px;
+}
+
+.Login-register a{
+    color:#E53935;
+    text-decoration:none;
+    font-weight:bold;
+}
+
+.Login-register a:hover{
+    text-decoration:underline;
+}
+
+/* MOBILE */
+@media (max-width:900px){
+    .Login-container{
+        flex-direction:column;
+    }
+
+    .Login-left{
+        padding:50px 20px;
+    }
+
+    .Login-title{
+        font-size:46px;
+    }
+
+    .Login-description{
+        font-size:18px;
+    }
+
+    .Login-right{
+        padding:20px;
+    }
+
+    .Login-heading{
+        font-size:32px;
+    }
+
+    .Login-form{
+        padding:30px 22px;
+    }
+}
