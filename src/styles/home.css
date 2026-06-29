@@ -173,3 +173,16 @@
 .home-btn:hover {
   background: #c62828;
 }
+
+@keyframes saludar {
+  0%, 100% { transform: rotate(0deg); }
+  20%, 60% { transform: rotate(-10deg); }
+  40%, 80% { transform: rotate(15deg); }
+}
+
+.emoji-saludo {
+  display: inline-block;
+  font-family: sans-serif;
+  animation: saludar 2s ease infinite;
+  transform-origin: 80% 80%;
+}

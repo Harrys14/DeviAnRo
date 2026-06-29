@@ -1,6 +1,6 @@
 # DeviAnRo - Delivery de Comida
 
-Aplicación web de delivery de comida desarrollada con **React + Vite + Clerk** para autenticación.
+Aplicación web de delivery de comida desarrollada con **React + Vite** para autenticación.
 
 ## Funcionalidades
 

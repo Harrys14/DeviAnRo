@@ -89,7 +89,10 @@ function Home() {
         </div>
       </header>
 
-      <div className="home-welcome">Bienvenido 👋</div>
+     <div className="home-welcome">
+  Bienvenido {user?.name || <span className="emoji-saludo">👋</span>}
+</div>
+
 
       <input
         className="home-search"
