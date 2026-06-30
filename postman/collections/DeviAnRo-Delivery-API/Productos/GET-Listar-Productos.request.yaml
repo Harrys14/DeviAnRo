@@ -1,0 +1,65 @@
+$kind: http-request
+name: Listar Productos
+method: GET
+url: '{{baseURL}}/productos?populate=*'
+description: Retorna todos los productos con detalles completos
+queryParams:
+  - key: populate
+    value: '*'
+order: 1000
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      const res = pm.response.json();
+      const productos = res.data || [];
+
+      const cards = productos.map(p => {
+        const attr = p.attributes || p;
+        const img = attr.imagen?.data?.attributes?.formats?.thumbnail?.url ||
+                   attr.imagen?.data?.attributes?.url ||
+                   attr.imagen?.[0]?.formats?.thumbnail?.url ||
+                   attr.imagen?.[0]?.url || null;
+
+        const imgTag = img
+          ? `<img src="${img}" alt="${attr.nombre}" style="width:100%;height:180px;object-fit:cover;">`
+          : `<div style="height:180px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;color:#999;">Sin imagen</div>`;
+
+        return `
+          <div class="card">
+            ${imgTag}
+            <div class="card-body">
+              <div class="badge">${attr.categoria || 'Sin categoría'}</div>
+              <h3>${attr.nombre}</h3>
+              <div class="price">$${Number(attr.precio).toLocaleString('es-CO')}</div>
+              <p class="description">${attr.descripcion || 'Sin descripción'}</p>
+              <small>Ingredientes: ${attr.ingredientes || '—'}</small>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      const html = `
+      <html>
+      <head>
+        <style>
+          body { font-family: Arial, sans-serif; background:#f8f9fa; padding:20px; }
+          h1 { color: #ff6b35; }
+          .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+          .card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+          .card-body { padding: 16px; }
+          .badge { background: #ff6b35; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; display:inline-block; margin-bottom:8px; }
+          h3 { margin: 8px 0; color: #222; }
+          .price { font-size: 20px; font-weight: bold; color: #ff6b35; margin: 8px 0; }
+          .description { color: #555; line-height: 1.4; margin-bottom: 8px; }
+        </style>
+      </head>
+      <body>
+        <h1>🍔 Productos Disponibles (${productos.length})</h1>
+        <div class="grid">
+          ${cards}
+        </div>
+      </body>
+      </html>`;
+
+      pm.visualizer.set(html);

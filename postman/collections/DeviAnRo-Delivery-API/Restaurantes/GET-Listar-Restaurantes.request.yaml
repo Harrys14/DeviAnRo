@@ -1,0 +1,9 @@
+$kind: http-request
+name: Listar Restaurantes
+method: GET
+url: '{{baseURL}}/restaurantes?populate=*'
+description: Retorna la lista de todos los restaurantes disponibles.
+queryParams:
+  - key: populate
+    value: '*'
+order: 1000

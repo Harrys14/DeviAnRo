@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { SignedIn, SignedOut, useUser } from "@clerk/clerk-react";
 
 import Login from "./pages/Login";
+import Registro from "./pages/Registro";
 import Home from "./pages/Home";
 import Carrito from "./pages/Carrito";
 import Cuenta from "./pages/Cuenta";
@@ -26,6 +27,9 @@ function App() {
             </SignedOut>
           } 
         />
+
+        {/* Registro - público */}
+        <Route path="/registro" element={<Registro />} />
 
         {/* Rutas protegidas */}
         <Route path="/home" element={<SignedIn><Home /></SignedIn>} />

@@ -1,0 +1,6 @@
+name: 'DeviAnRo - Mock'
+values:
+  - key: baseURL
+    value: 'http://localhost:1337/api'
+    type: default
+    enabled: true

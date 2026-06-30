@@ -1,0 +1,9 @@
+﻿$kind: http-request
+name: Mis Pedidos
+method: GET
+url: '{{baseURL}}/pedidos?filters[userId][$eq]=user_test_123'
+description: Retorna la lista de pedidos del usuario filtrados por userId.
+queryParams:
+  - key: 'filters[userId][$eq]'
+    value: user_test_123
+order: 2000

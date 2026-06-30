@@ -1,10 +1,10 @@
-const API_URL = "http://localhost:1337/api";
+﻿const API_URL = "http://localhost:1337/api";
 
 /*PRODUCTOS*/
 
 export const getProductos = async () => {
   try {
-    const res = await fetch(`${API_URL}/productos?populate=*`);
+    const res = await fetch(`${API_URL}/productos?populate=*&pagination[pageSize]=100`);
     const data = await res.json();
     return data.data;
   } catch (error) {
@@ -23,5 +23,40 @@ export const getProductoById = async (id) => {
   } catch (error) {
     console.log("Error getProductoById:", error);
     return null;
+  }
+};
+
+/*PEDIDOS*/
+
+export const crearPedido = async (pedidoData, userId) => {
+  try {
+    const res = await fetch(`${API_URL}/pedidos`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        data: {
+          ...pedidoData,
+          userId,
+        },
+      }),
+    });
+    const data = await res.json();
+    return data;
+  } catch (error) {
+    console.log("Error crearPedido:", error);
+    return null;
+  }
+};
+
+export const getMisPedidos = async (userId) => {
+  try {
+    const res = await fetch(
+      `${API_URL}/pedidos?filters[userId][$eq]=${userId}`
+    );
+    const data = await res.json();
+    return data.data;
+  } catch (error) {
+    console.log("Error getMisPedidos:", error);
+    return [];
   }
 };

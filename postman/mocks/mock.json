@@ -1,0 +1,14 @@
+{
+  "id": "019f1509-e5e9-778e-ba74-76c2d7903f48",
+  "version": 1,
+  "name": "DeviAnRo Delivery API",
+  "slug": "devianro-delivery-api",
+  "protocol": "http",
+  "port": 4500,
+  "mockSrc": "./mock.js",
+  "autoRestartOnChange": true,
+  "logging": {
+    "level": "verbose",
+    "showBody": true
+  }
+}

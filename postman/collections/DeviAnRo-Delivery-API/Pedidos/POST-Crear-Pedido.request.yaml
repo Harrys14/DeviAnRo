@@ -1,0 +1,66 @@
+$kind: http-request
+name: Crear Pedido
+method: POST
+url: '{{baseURL}}/pedidos'
+description: Crea un nuevo pedido en Strapi con dirección aleatoria de Colombia.
+order: 1000
+headers:
+  - key: Content-Type
+    value: application/json
+scripts:
+  - type: beforeRequest
+    language: text/javascript
+    code: |-
+      const ciudades = [
+        "Bogotá", "Medellín", "Cali", "Barranquilla", "Cartagena",
+        "Cúcuta", "Bucaramanga", "Pereira", "Santa Marta", "Ibagué",
+        "Manizales", "Pasto", "Neiva", "Villavicencio", "Armenia",
+        "Valledupar", "Montería", "Sincelejo", "Popayán", "Tunja"
+      ];
+
+      const tiposVia = ["Calle", "Carrera", "Avenida", "Diagonal", "Transversal"];
+      const barrios = [
+        "El Poblado", "Chapinero", "Laureles", "Manga", "El Prado",
+        "La Candelaria", "Cabecera", "Pinares", "El Bosque", "San Alonso",
+        "La Flora", "Ciudad Jardín", "El Centro", "Los Álamos", "Bello Horizonte"
+      ];
+
+      const rand = (arr) => arr[Math.floor(Math.random() * arr.length)];
+      const randNum = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+      const ciudad = rand(ciudades);
+      const via = rand(tiposVia);
+      const num1 = randNum(1, 150);
+      const num2 = randNum(1, 99);
+      const num3 = randNum(1, 99);
+      const barrio = rand(barrios);
+
+      const direccion = `${via} ${num1} #${num2}-${num3}, ${barrio}, ${ciudad}`;
+
+      const body = JSON.parse(pm.request.body.raw);
+      body.data.direccionEntrega = direccion;
+      pm.request.body.update({ mode: "raw", raw: JSON.stringify(body, null, 2) });
+
+      console.log("Dirección generada:", direccion);
+body:
+  type: json
+  content: |-
+    {
+      "data": {
+        "userId": "user_test_123",
+        "items": [
+          { "productoId": 1, "cantidad": 2 },
+          { "productoId": 3, "cantidad": 1 }
+        ],
+        "direccionEntrega": "se genera automáticamente",
+        "metodoPago": "efectivo",
+        "restauranteId": 1,
+        "restaurante": "DeviAnRo Burger",
+        "subtotal": 50000,
+        "costoEnvio": 5000,
+        "total": 55000,
+        "estado": "confirmado",
+        "fecha": "12:00:00",
+        "tiempoEstimado": "30 min"
+      }
+    }

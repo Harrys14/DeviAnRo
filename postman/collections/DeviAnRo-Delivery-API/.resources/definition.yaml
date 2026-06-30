@@ -1,0 +1,6 @@
+$kind: collection
+name: DeviAnRo Delivery API
+description: 'API para la aplicación DeviAnRo Delivery. Proyecto React + Vite con Clerk Authentication. Actualmente usando datos mockeados.'
+variables:
+  - key: baseURL
+    value: 'http://localhost:3000'

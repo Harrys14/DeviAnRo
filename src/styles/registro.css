@@ -5,93 +5,97 @@
 }
 
 .registro-container {
-  min-height: 100vh;
+  width: 100 100vh;
   display: flex;
-  font-family: Arial, sans-serif;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  overflow: hidden;
 }
 
-/* IZQUIERDA */
+/* ── IZQUIERDA (blanca, formulario) ── */
 .registro-left {
   flex: 1;
   background: #fff;
   display: flex;
-  flex-direction: column;
   justify-content: center;
-  padding: 60px;
+  align-items: center;
+  padding: 40px;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
-.registro-left h1 {
-  font-size: 40px;
-  color: #ff4d4d;
-  margin-bottom: 10px;
+/* Clerk sin desborde */
+.clerk-signup-container {
+  width: 100 480px;
 }
 
-.registro-left p {
-  color: #555;
-  margin-bottom: 20px;
+.clerk-signup-container .cl-rootBox {
+  width: 100 100 100 none !important;
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
 }
 
-/* FORM */
-.registro-form {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  max-width: 350px;
+.clerk-signup-container .cl-main,
+.clerk-signup-container .cl-form {
+  width: 100 0 !important;
 }
 
-.registro-form input {
-  padding: 12px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  outline: none;
+.clerk-signup-container .cl-formField,
+.clerk-signup-container .cl-formFieldRow {
+  width: 100 border-box !important;
 }
 
-.registro-form button {
-  padding: 12px;
-  border: none;
-  border-radius: 8px;
-  background: #ff4d4d;
-  color: white;
-  font-weight: bold;
-  cursor: pointer;
-  transition: 0.3s;
+.clerk-signup-container .cl-formFieldInput {
+  width: 100 border-box !important;
 }
 
-.registro-form button:hover {
-  background: #e63e3e;
-}
-
-/* LINK */
-.registro-link {
-  margin-top: 15px;
-  font-size: 14px;
-}
-
-.registro-link a {
-  color: #ff4d4d;
-  text-decoration: none;
-  font-weight: bold;
-}
-
-/* DERECHA */
+/* ── DERECHA (roja, marca) ── */
 .registro-right {
   flex: 1;
-  background: linear-gradient(135deg, #ff4d4d, #ff0000);
+  background: #E53935;
   color: white;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  padding: 60px;
   text-align: center;
-  padding: 100px;
 }
 
-.registro-right h2 {
-  font-size: 32px;
-  margin-bottom: 10px;
+.registro-title {
+  font-size: 72px;
+  margin-bottom: 20px;
 }
 
-.registro-right p {
-  font-size: 16px;
-  opacity: 0.9;
+.registro-description {
+  font-size: 24px;
+  text-align: center;
+  max-width: 500px;
+  line-height: 1.6;
+}
+
+/* ── MÓVIL ── */
+@media (max-width: 900px) {
+  .registro-container {
+    flex-direction: column;
+    height: auto;
+    min-height: 100vh;
+    overflow: auto;
+  }
+
+  .registro-right {
+    padding: 50px 20px;
+  }
+
+  .registro-title {
+    font-size: 46px;
+  }
+
+  .registro-description {
+    font-size: 18px;
+  }
+
+  .registro-left {
+    padding: 30px 20px;
+  }
 }
