@@ -1,0 +1,390 @@
+/* =========================
+   RESET GENERAL
+========================= */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* =========================
+   CONTENEDOR PRINCIPAL
+========================= */
+
+.restaurante-container {
+  min-height: 100vh;
+  background: linear-gradient(
+    180deg,
+    #fafafa 0%,
+    #f5f6fa 100%
+  );
+  padding: 40px;
+  max-width: 1400px;
+  margin: auto;
+  font-family: "Segoe UI", Arial, sans-serif;
+}
+
+/* =========================
+   ENCABEZADO
+========================= */
+
+.restaurante-header {
+  margin-bottom: 60px;
+}
+
+/* =========================
+   BARRA SUPERIOR
+========================= */
+
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  margin-bottom: 40px;
+}
+
+/* =========================
+   MARCA DE LA APP
+========================= */
+
+.marca-app {
+  font-size: 34px;
+  font-weight: 900;
+
+  background: linear-gradient(
+    135deg,
+    #e53935,
+    #ff5252
+  );
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  letter-spacing: 2px;
+
+  cursor: default;
+}
+
+/* =========================
+   BOTÓN VOLVER
+========================= */
+
+.restaurante-volver {
+  text-decoration: none;
+
+  color: #e53935;
+
+  font-weight: 700;
+  font-size: 18px;
+
+  transition: all 0.3s ease;
+}
+
+.restaurante-volver:hover {
+  transform: translateX(-5px);
+}
+
+/* =========================
+   TÍTULO
+========================= */
+
+.restaurante-header h1 {
+  text-align: center;
+
+  font-size: 58px;
+  color: #222;
+
+  margin-bottom: 15px;
+
+  line-height: 1.1;
+}
+
+/* =========================
+   DESCRIPCIÓN
+========================= */
+
+.restaurante-header p {
+  text-align: center;
+
+  max-width: 700px;
+
+  margin: auto;
+
+  color: #666;
+
+  font-size: 20px;
+  line-height: 1.7;
+}
+
+/* =========================
+   GRID DE RESTAURANTES
+========================= */
+
+.restaurante-grid {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(340px, 1fr)
+  );
+  gap: 35px;
+}
+
+/* =========================
+   TARJETA
+========================= */
+
+.restaurante-card {
+  background: white;
+  border-radius: 24px;
+  overflow: hidden;
+
+  display: flex;
+  flex-direction: column;
+
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+
+  transition: all 0.35s ease;
+}
+
+.restaurante-card:hover {
+  transform: translateY(-8px);
+
+  box-shadow:
+    0 20px 45px rgba(0, 0, 0, 0.15);
+}
+
+/* =========================
+   CONTENEDOR IMAGEN
+========================= */
+
+.restaurante-img-container {
+  position: relative;
+  overflow: hidden;
+}
+
+/* =========================
+   IMAGEN
+========================= */
+
+.restaurante-img {
+  width: 100%;
+  height: 250px;
+  object-fit: cover;
+
+  transition: transform 0.4s ease;
+}
+
+.restaurante-card:hover .restaurante-img {
+  transform: scale(1.06);
+}
+
+/* =========================
+   CALIFICACIÓN
+========================= */
+
+.restaurante-overlay {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+
+  background: rgba(255, 255, 255, 0.95);
+
+  padding: 8px 14px;
+
+  border-radius: 999px;
+
+  font-weight: 700;
+  font-size: 15px;
+
+  color: #333;
+
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+/* =========================
+   INFORMACIÓN
+========================= */
+
+.restaurante-info {
+  padding: 20px;
+
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+/* =========================
+   NOMBRE
+========================= */
+
+.restaurante-info h2 {
+  font-size: 26px;
+  color: #222;
+  margin-bottom: 8px;
+  line-height: 1.2;
+}
+
+/* =========================
+   CIUDAD
+========================= */
+
+.restaurante-meta {
+  color: #666;
+  font-size: 14px;
+  font-weight: 600;
+
+  margin-bottom: 12px;
+}
+
+/* =========================
+   CATEGORÍA
+========================= */
+
+.restaurante-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  width: fit-content;
+
+  background: #fff0f0;
+  color: #e53935;
+
+  padding: 5px 12px;
+
+  border-radius: 999px;
+
+  font-size: 12px;
+  font-weight: 700;
+
+  margin-bottom: 14px;
+}
+
+/* =========================
+   DESCRIPCIÓN
+========================= */
+
+.restaurante-info > p {
+  color: #666;
+  font-size: 15px;
+  line-height: 1.7;
+
+  margin-bottom: 15px;
+
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* =========================
+   DIRECCIÓN
+========================= */
+
+.restaurante-contacto {
+  margin-bottom: 20px;
+}
+
+.restaurante-contacto p {
+  color: #777;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* =========================
+   BOTÓN
+========================= */
+
+.restaurante-btn {
+  margin-top: auto;
+
+  width: 100%;
+
+  text-decoration: none;
+  text-align: center;
+
+  padding: 14px;
+
+  border-radius: 14px;
+
+  color: white;
+
+  font-size: 15px;
+  font-weight: 700;
+
+  background: linear-gradient(
+    135deg,
+    #e53935,
+    #ff5252
+  );
+
+  transition: all 0.3s ease;
+}
+
+.restaurante-btn:hover {
+  transform: translateY(-2px);
+
+  background: linear-gradient(
+    135deg,
+    #c62828,
+    #e53935
+  );
+}
+
+/* =========================
+   SIN RESULTADOS
+========================= */
+
+.restaurante-container h2 {
+  text-align: center;
+  color: #666;
+  margin-top: 80px;
+}
+
+/* =========================
+   TABLET
+========================= */
+
+@media (max-width: 992px) {
+  .restaurante-header h1 {
+    font-size: 46px;
+  }
+
+  .restaurante-header p {
+    font-size: 18px;
+  }
+}
+
+/* =========================
+   MÓVIL
+========================= */
+
+@media (max-width: 768px) {
+  .restaurante-container {
+    padding: 20px;
+  }
+
+  .restaurante-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .restaurante-header h1 {
+    font-size: 36px;
+  }
+
+  .restaurante-header p {
+    font-size: 16px;
+  }
+
+  .restaurante-info h2 {
+    font-size: 22px;
+  }
+
+  .restaurante-img {
+    height: 220px;
+  }
+}

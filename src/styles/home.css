@@ -113,6 +113,11 @@
   border-radius: 30px;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
   cursor: pointer;
+  transition: 0.3s;
+}
+
+.home-category:hover {
+  transform: translateY(-3px);
 }
 
 .home-category.active {
@@ -120,18 +125,66 @@
   color: white;
 }
 
+/* BOTÓN RESTAURANTES */
+.home-restaurante-btn {
+  display: block;
+  text-decoration: none;
+  background: #e53935;
+  color: white;
+  border-radius: 15px;
+  padding: 18px;
+  margin-bottom: 25px;
+  transition: all 0.3s ease;
+}
+
+.home-restaurante-btn:hover {
+  background: #c62828;
+  transform: translateY(-4px);
+}
+
+.home-restaurante-content {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.home-restaurante-icon {
+  font-size: 2rem;
+}
+
+.home-restaurante-content h3 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.home-restaurante-content p {
+  margin: 5px 0 0;
+  font-size: 14px;
+  opacity: 0.9;
+}
+
 /* PRODUCTS */
 .home-products {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: 25px;
 }
 
 .home-product-card {
+  min-width: 280px;
   background: white;
-  border-radius: 20px;
+  border-radius: 24px;
+  overflow: hidden;
   padding: 18px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  transition: all 0.35s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.home-product-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
 }
 
 .home-product-img {
@@ -139,24 +192,69 @@
   height: 230px;
   object-fit: cover;
   border-radius: 16px;
-  margin-bottom: 15px;
+  margin-bottom: 18px;
+}
+
+.home-product-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
 
 .home-product-info h3 {
   font-size: 24px;
   margin-bottom: 10px;
+  color: #222;
 }
 
 .home-product-info p {
   color: #666;
   margin-bottom: 15px;
+  line-height: 1.6;
+}
+
+/* PRECIO + RESTAURANTE */
+.home-product-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-top: auto;
+  margin-bottom: 18px;
 }
 
 .home-price {
-  font-size: 28px;
+  font-size: 24px;
   font-weight: bold;
   color: #e53935;
-  margin-bottom: 18px;
+
+  white-space: nowrap;
+  flex-shrink: 0;
+  min-width: fit-content;
+}
+
+.home-product-restaurante {
+  background: linear-gradient(135deg, #c7ffb3, #69ff93);
+  color: #e65100;
+
+  padding: 6px 10px;
+  border-radius: 20px;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+
+  flex-shrink: 1;
+  max-width: 150px;
+}
+
+.home-product-restaurante-icon {
+  font-size: 15px;
 }
 
 .home-btn {
@@ -168,12 +266,16 @@
   border-radius: 12px;
   cursor: pointer;
   font-weight: bold;
+  margin-top: auto;
+  transition: all 0.3s ease;
 }
 
 .home-btn:hover {
   background: #c62828;
+  transform: scale(1.02);
 }
 
+/* ANIMACIÓN SALUDO */
 @keyframes saludar {
   0%, 100% { transform: rotate(0deg); }
   20%, 60% { transform: rotate(-10deg); }
@@ -185,4 +287,39 @@
   font-family: sans-serif;
   animation: saludar 2s ease infinite;
   transform-origin: 80% 80%;
+}
+
+/* RESPONSIVE */
+@media (max-width: 1200px) {
+  .home-products {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .home-products {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .home-products {
+    grid-template-columns: 1fr;
+  }
+
+  .home-container {
+    padding: 20px;
+  }
+
+  .home-logo {
+    font-size: 30px;
+  }
+
+  .home-welcome {
+    font-size: 24px;
+  }
+}
+
+.home-product-restaurante span {
+  line-height: 1.2;
 }
