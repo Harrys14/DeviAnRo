@@ -1,462 +1,374 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { getProductos } from "../services/strapi";
-import { useUser, useClerk } from "@clerk/clerk-react";
+import {
+  getProductos,
+  obtenerImagen,
+} from "../services/strapi";
+import { useUser } from "@clerk/clerk-react";
+import { useCart } from "../context/CartContext";
+import { useToast } from "../context/ToastContext";
+import Layout from "../components/Layout";
 import "../styles/home.css";
 
+const normalizarTexto = (texto) =>
+  (texto || "")
+    .toString()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim();
+
+const iconoPorCategoria = (cat = "") => {
+  const c = normalizarTexto(cat);
+  if (c.includes("hambur") || c.includes("burger")) return "🍔";
+  if (c.includes("pizz")) return "🍕";
+  if (c.includes("postre") || c.includes("dulc") || c.includes("tort") || c.includes("helad")) return "🍰";
+  if (c.includes("bebida") || c.includes("jugo") || c.includes("refresc") || c.includes("agua") || c.includes("gaseos")) return "🥤";
+  if (c.includes("sopa") || c.includes("cald")) return "🍜";
+  if (c.includes("entrad") || c.includes("picad")) return "🥟";
+  if (c.includes("poll") || c.includes("pollo")) return "🍗";
+  if (c.includes("carn") || c.includes("res") || c.includes("lomo") || c.includes("asado")) return "🥩";
+  if (c.includes("pesc") || c.includes("marisc") || c.includes("sushi")) return "🍣";
+  if (c.includes("ensal")) return "🥗";
+  if (c.includes("sandwi") || c.includes("torta") || c.includes("sandwich")) return "🥪";
+  if (c.includes("cafe") || c.includes("te") || c.includes("café")) return "☕";
+  return "🍽️";
+};
+
 function Home() {
-
-  // =========================
-  // ESTADOS PRINCIPALES
-  // =========================
-
   const [productos, setProductos] = useState([]);
   const [busqueda, setBusqueda] = useState("");
   const [categoriaActiva, setCategoriaActiva] = useState("todos");
-  const [menuOpen, setMenuOpen] = useState(false);
-
-  // =========================
-  // INFORMACIÓN DEL USUARIO
-  // =========================
+  const [cargando, setCargando] = useState(true);
 
   const { user } = useUser();
-  const { signOut } = useClerk();
-
-  // =========================
-  // CONTROL DEL MENÚ DE USUARIO
-  // =========================
-
-  const toggleMenu = () => setMenuOpen(!menuOpen);
-
-  // =========================
-  // FILTRAR PRODUCTOS
-  // =========================
-
-  const filtrarProductos = (producto) => {
-
-    const coincideCategoria =
-      categoriaActiva === "todos" ||
-      producto.categoria?.toLowerCase() === categoriaActiva;
-
-    const coincideBusqueda =
-      producto.nombre?.toLowerCase().includes(busqueda.toLowerCase()) ||
-      (producto.descripcion || "")
-        .toLowerCase()
-        .includes(busqueda.toLowerCase());
-
-    return coincideCategoria && coincideBusqueda;
-
-  };
-
-  // =========================
-  // AGREGAR PRODUCTOS AL CARRITO
-  // =========================
-
-  const agregarAlCarrito = (producto) => {
-
-    let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
-
-    const existe = carrito.find(
-      (item) => item.id === producto.id
-    );
-
-    if (existe) {
-
-      existe.cantidad = (existe.cantidad || 1) + 1;
-
-    } else {
-
-      carrito.push({
-        ...producto,
-        cantidad: 1,
-      });
-
-    }
-
-    localStorage.setItem(
-      "carrito",
-      JSON.stringify(carrito)
-    );
-
-    alert("✅ Agregado al carrito");
-
-  };
-
-  // =========================
-  // CARGAR PRODUCTOS DESDE STRAPI
-  // =========================
+  const { addItem } = useCart();
+  const { showToast } = useToast();
 
   useEffect(() => {
-
-    const cargarProductos = async () => {
-
+    const cargarDatos = async () => {
       try {
-
-        const data = await getProductos();
-
-        console.log("Productos:", data);
-
-        setProductos(data || []);
-
+        const productosData = await getProductos();
+        setProductos(Array.isArray(productosData) ? productosData : []);
       } catch (error) {
-
-        console.error(
-          "Error cargando productos:",
-          error
-        );
-
+        console.error("Error cargando productos:", error);
+        setProductos([]);
+        showToast("No se pudieron cargar los productos", "error");
+      } finally {
+        setCargando(false);
       }
-
     };
+    cargarDatos();
+  }, [showToast]);
 
-    cargarProductos();
+  const categoriasDinamicas = useMemo(() => {
+    const set = new Set();
+    productos.forEach((p) => {
+      const c = (p.categoria || "").trim();
+      if (c) set.add(c);
+    });
+    return [
+      { id: "todos", label: "Todos", icon: "🍽️", norm: "todos" },
+      ...Array.from(set)
+        .sort((a, b) => a.localeCompare(b, "es"))
+        .map((c) => ({
+          id: c,
+          label: c,
+          icon: iconoPorCategoria(c),
+          norm: normalizarTexto(c),
+        })),
+    ];
+  }, [productos]);
 
-  }, []);
+  const productosFiltrados = useMemo(() => {
+    const q = normalizarTexto(busqueda);
+    const catNorm = normalizarTexto(categoriaActiva);
+    return productos.filter((p) => {
+      const catProducto = normalizarTexto(p.categoria);
+      if (categoriaActiva !== "todos" && catProducto !== catNorm) return false;
+      if (q) {
+        const texto = normalizarTexto(
+          [
+            p.nombre,
+            p.descripcion,
+            p.categoria,
+            p.ingredientes,
+            p.restaurante?.nombre,
+            p.restaurante?.categoria,
+            p.restaurante?.ciudad,
+          ]
+            .filter(Boolean)
+            .join(" ")
+        );
+        if (!texto.includes(q)) return false;
+      }
+      return true;
+    });
+  }, [productos, busqueda, categoriaActiva]);
+
+  const productoDestacado = useMemo(() => {
+    if (!productosFiltrados.length) return null;
+    return (
+      productosFiltrados.find((p) => p.destacado && p.disponible) ||
+      productosFiltrados.find((p) => p.disponible) ||
+      productosFiltrados[0]
+    );
+  }, [productosFiltrados]);
+
+  const productosGrid = useMemo(() => {
+    if (!productoDestacado) return productosFiltrados;
+    return productosFiltrados.filter((p) => String(p.id) !== String(productoDestacado.id));
+  }, [productosFiltrados, productoDestacado]);
+
+  const agregarAlCarrito = (producto) => {
+    if (!producto?.disponible) {
+      showToast("Este producto está agotado", "warning");
+      return;
+    }
+    addItem(producto, 1);
+    showToast(`${producto.nombre} agregado al carrito`, "success");
+  };
+
+  const formatearPrecio = (n) =>
+    Number(n || 0).toLocaleString("es-CO", { minimumFractionDigits: 2 });
 
   return (
+    <Layout>
+      <div className="home-container">
+        <section className="home-hero">
+          <div className="hero-bg" aria-hidden />
+          <div className="hero-content">
+            <div className="hero-welcome">
+              <h1 className="hero-title">
+                {user?.name ? `Hola, ${user.name.split(" ")[0]} ` : "Hola "}
+                <span className="hero-emoji">✨</span>
+              </h1>
+              <p className="hero-subtitle">
+                ¿Qué se te antoja hoy? Busca por plato, ingrediente o restaurante.
+              </p>
+            </div>
 
-    <div className="home-container">
+            <div className="hero-search">
+              <span className="search-icon" aria-hidden>🔎</span>
+              <input
+                type="search"
+                className="search-input"
+                placeholder="Busca hamburguesa, pizza, sushi..."
+                value={busqueda}
+                onChange={(e) => setBusqueda(e.target.value)}
+              />
+              {busqueda && (
+                <button
+                  type="button"
+                  className="search-clear"
+                  onClick={() => setBusqueda("")}
+                  aria-label="Limpiar búsqueda"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
 
-      {/* =========================
-          ENCABEZADO PRINCIPAL
-      ========================= */}
+            <div className="hero-actions">
+              <Link
+                to="/restaurante"
+                className="btn-primary hero-restaurant-btn"
+                style={{ textDecoration: "none" }}
+              >
+                🏪 Ver todos los restaurantes
+              </Link>
+            </div>
+          </div>
+        </section>
 
-      <header className="home-header">
+        <section className="home-categorias-section">
+          <div className="section-head">
+            <h2 className="section-title">
+              <span className="title-dot" /> Categorías
+            </h2>
+          </div>
+          <div className="categorias-wrap">
+            {categoriasDinamicas.map((cat) => (
+              <button
+                key={cat.id}
+                type="button"
+                className={`cat-stamp ${categoriaActiva === cat.id ? "is-active" : ""}`}
+                onClick={() => setCategoriaActiva(cat.id)}
+              >
+                <span className="cat-icon">{cat.icon}</span>
+                <span className="cat-label">{cat.label}</span>
+              </button>
+            ))}
+          </div>
+        </section>
 
-        <h1 className="home-logo">
-          DeviAnRo
-        </h1>
-
-        <div className="home-header-right">
-
-          {/* UBICACIÓN DEL USUARIO */}
-
-          <div className="home-location">
-            Bogotá
+        <section className="home-bento-section">
+          <div className="section-head">
+            <h2 className="section-title">
+              <span className="title-dot" /> Carta del día
+            </h2>
+            <div className="results-pill">
+              {productosFiltrados.length} producto
+              {productosFiltrados.length === 1 ? "" : "s"}
+            </div>
           </div>
 
-          {/* MENÚ DE CUENTA */}
-
-          <div
-            className="home-account-wrapper"
-            style={{ position: "relative" }}
-          >
-
-            <img
-              src={
-                user?.imageUrl ||
-                "https://via.placeholder.com/50"
-              }
-              alt="Cuenta"
-              onClick={toggleMenu}
-              style={{
-                width: "50px",
-                height: "50px",
-                borderRadius: "50%",
-                cursor: "pointer",
-                border: "1px solid white"
-              }}
-            />
-
-            {menuOpen && (
-
-              <div
-                className="home-menu-dropdown"
-                style={{
-                  position: "absolute",
-                  right: "0",
-                  top: "50px",
-                  background: "white",
-                  boxShadow:
-                    "0 4px 12px rgba(0,0,0,0.2)",
-                  borderRadius: "8px",
-                  padding: "10px",
-                  zIndex: 100
+          {cargando ? (
+            <div className="bento-grid">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div
+                  key={`sk-${i}`}
+                  className={`bento-card skeleton-card ${i === 0 ? "bento-featured" : ""}`}
+                  style={{ pointerEvents: "none" }}
+                >
+                  <div className="skeleton" style={{ width: "100%", height: "100%", borderRadius: "24px" }} />
+                </div>
+              ))}
+            </div>
+          ) : productosFiltrados.length === 0 ? (
+            <div className="empty-state">
+              <div className="empty-icon">🍽️</div>
+              <h3>No encontramos nada así</h3>
+              <p>Prueba cambiando la búsqueda o la categoría.</p>
+              <button
+                type="button"
+                className="btn-primary btn-empty-reset"
+                onClick={() => {
+                  setBusqueda("");
+                  setCategoriaActiva("todos");
                 }}
               >
-
-                {/* OPCIONES DEL MENÚ */}
-
+                Ver todos los productos
+              </button>
+            </div>
+          ) : (
+            <div className="bento-grid">
+              {productoDestacado && (
                 <Link
-                  to="/carrito"
-                  style={{
-                    display: "block",
-                    padding: "10px"
-                  }}
+                  to={`/detalle/${productoDestacado.id}`}
+                  className="bento-card bento-featured"
+                  key={`f-${productoDestacado.id}`}
                 >
-                  🛒 Carrito
-                </Link>
-
-                <Link
-                  to="/cuenta"
-                  style={{
-                    display: "block",
-                    padding: "10px"
-                  }}
-                >
-                  👤 Mi Cuenta
-                </Link>
-
-                <button
-                  onClick={() =>
-                    signOut({
-                      redirectUrl: "/"
-                    })
-                  }
-                  style={{
-                    display: "block",
-                    padding: "10px",
-                    background: "none",
-                    border: "none",
-                    width: "100%",
-                    textAlign: "left",
-                    color: "red"
-                  }}
-                >
-                  🚪 Cerrar sesión
-                </button>
-
-              </div>
-
-            )}
-
-          </div>
-
-        </div>
-
-      </header>
-            {/* =========================
-          MENSAJE DE BIENVENIDA
-      ========================= */}
-
-      <div className="home-welcome">
-        Bienvenido {user?.name || <span className="emoji-saludo">👋</span>}
-      </div>
-
-      {/* =========================
-          BUSCADOR DE PRODUCTOS
-      ========================= */}
-
-      <input
-        className="home-search"
-        placeholder="Buscar hamburguesa, pizza, sushi..."
-        value={busqueda}
-        onChange={(e) => setBusqueda(e.target.value)}
-      />
-
-      {/* =========================
-          ACCESO A RESTAURANTES
-      ========================= */}
-
-      <Link
-        to="/restaurante"
-        className="home-restaurante-btn"
-      >
-
-        <div className="home-restaurante-content">
-
-          <span className="home-restaurante-icon">
-            🍔
-          </span>
-
-          <div>
-
-            <h3>
-              Explorar Restaurantes
-            </h3>
-
-            <p>
-              Descubre todos los restaurantes disponibles
-            </p>
-
-          </div>
-
-        </div>
-
-      </Link>
-
-      {/* =========================
-          SECCIÓN DE CATEGORÍAS
-      ========================= */}
-
-      <h3 className="home-section-title">
-        Categorías
-      </h3>
-
-      <div className="home-categories">
-
-        {[
-          "todos",
-          "hamburguesas",
-          "pizzas",
-          "postres",
-          "bebidas",
-          "sopas",
-          "entradas",
-          "pollo",
-          "carnes"
-        ].map((cat) => (
-
-          <div
-            key={cat}
-            className={`home-category ${
-              categoriaActiva === cat ? "active" : ""
-            }`}
-            onClick={() => setCategoriaActiva(cat)}
-          >
-
-            {cat}
-
-          </div>
-
-        ))}
-
-      </div>
-
-      {/* =========================
-          LISTADO DE PRODUCTOS
-      ========================= */}
-
-      <div className="home-products">
-
-        {productos.length === 0 ? (
-
-          <p>
-            Cargando productos...
-          </p>
-
-        ) : (
-
-          productos
-            .filter(filtrarProductos)
-            .map((producto) => {
-
-              {/* =========================
-                  OBTENER IMAGEN DE STRAPI
-              ========================= */}
-
-              let imagen = "https://via.placeholder.com/400";
-
-              const img = producto.imagen;
-
-              if (img?.data?.attributes?.url) {
-
-                imagen =
-                  `http://localhost:1337${img.data.attributes.url}`;
-
-              } else if (img?.url) {
-
-                imagen =
-                  `http://localhost:1337${img.url}`;
-
-              } else if (Array.isArray(img) && img.length > 0) {
-
-                imagen =
-                  `http://localhost:1337${img[0].url || img[0].attributes?.url}`;
-
-              }
-
-              {/* =========================
-                  FORMATO DEL PRECIO
-              ========================= */}
-
-              const precio = Number(producto.precio || 0)
-                .toLocaleString("es-CO", {
-                  minimumFractionDigits: 2,
-                });
-
-              return (
-
-                <div
-                  className="home-product-card"
-                  key={producto.id}
-                >
-
-                  {/* IMAGEN DEL PRODUCTO */}
-
-                  <img
-                    src={imagen}
-                    alt={producto.nombre}
-                    className="home-product-img"
-                  />
-
-                  {/* INFORMACIÓN DEL PRODUCTO */}
-
-                  <div className="home-product-info">
-
-                    <h3>
-                      {producto.nombre}
-                    </h3>
-
-                    <p>
-                      {producto.descripcion}
-                    </p>
-
-                    {/* PRECIO Y RESTAURANTE */}
-
-                    <div className="home-product-bottom">
-
-                      <div className="home-price">
-                        $ {precio}
-                      </div>
-
-                      <div className="home-product-restaurante">
-
-                        <span className="home-product-restaurante-icon">
-                          🏪
-                        </span>
-
-                        <span>
-                          {producto.restaurante?.nombre || "Restaurante no asignado"}
-                        </span>
-
-                      </div>
-
+                  <div
+                    className="bento-img"
+                    style={{
+                      backgroundImage: `url(${obtenerImagen(productoDestacado.imagen)})`,
+                    }}
+                  >
+                    <div className="bento-overlay" aria-hidden />
+                    <div className="featured-stamp">
+                      <span>⭐</span> Destacado
                     </div>
-                    
-                    {/* BOTÓN DE DETALLE */}
-
-                    <div
-                      style={{
-                        display: "flex",
-                        gap: "10px",
-                        marginTop: "15px"
-                      }}
-                    >
-
-                      <Link
-                        to={`/detalle/${producto.id}`}
-                        style={{ flex: 1 }}
-                      >
-
-                        <button
-                          className="home-btn"
-                          style={{ width: "100%" }}
-                        >
-
-                          Ver detalle
-
-                        </button>
-
-                      </Link>
-
-                    </div>
-
+                    {!productoDestacado.disponible && (
+                      <div className="featured-unavailable">⏳ Agotado</div>
+                    )}
                   </div>
+                  <div className="bento-info-featured">
+                    <div>
+                      <div className="bento-cat-pill">
+                        {productoDestacado.categoria || "Especialidad"}
+                      </div>
+                      <h3 className="bento-title featured-title">
+                        {productoDestacado.nombre}
+                      </h3>
+                      <p className="bento-desc featured-desc">
+                        {productoDestacado.descripcion ||
+                          "Un plato especial de la casa, preparado con ingredientes frescos."}
+                      </p>
+                      {productoDestacado.restaurante && (
+                        <Link
+                          to={`/restaurante/${productoDestacado.restaurante.id}`}
+                          className="bento-rest-link-lg"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <span>🏪</span> {productoDestacado.restaurante.nombre}
+                        </Link>
+                      )}
+                    </div>
+                    <div className="bento-bottom-featured">
+                      <div className="bento-price featured-price">
+                        $ {formatearPrecio(productoDestacado.precio)}
+                      </div>
+                      <button
+                        type="button"
+                        className="bento-add-featured"
+                        disabled={!productoDestacado.disponible}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          agregarAlCarrito(productoDestacado);
+                        }}
+                      >
+                        {productoDestacado.disponible ? "+ Agregar" : "Agotado"}
+                      </button>
+                    </div>
+                  </div>
+                </Link>
+              )}
 
-                </div>
-
-              );
-
-            })
-
-        )}
-
+              {productosGrid.map((p) => {
+                const disponible = p.disponible === undefined ? true : p.disponible;
+                return (
+                  <div key={p.id} className="bento-card">
+                    <Link to={`/detalle/${p.id}`} className="bento-inner-link">
+                      <div
+                        className="bento-img-mini"
+                        style={{
+                          backgroundImage: `url(${obtenerImagen(p.imagen)})`,
+                        }}
+                      >
+                        {p.categoria && (
+                          <div className="mini-cat-badge">
+                            {iconoPorCategoria(p.categoria)} <span>{p.categoria}</span>
+                          </div>
+                        )}
+                        {!disponible && (
+                          <div className="unavailable-ribbon">Agotado</div>
+                        )}
+                      </div>
+                      <div className="bento-info-mini">
+                        <h3 className="bento-title-mini">{p.nombre}</h3>
+                        <p className="bento-desc-mini">
+                          {p.descripcion
+                            ? p.descripcion.slice(0, 80) +
+                              (p.descripcion.length > 80 ? "…" : "")
+                            : "Sin descripción."}
+                        </p>
+                        {p.restaurante && (
+                          <Link
+                            to={`/restaurante/${p.restaurante.id}`}
+                            className="bento-rest-link"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <span>🏪</span> {p.restaurante.nombre}
+                          </Link>
+                        )}
+                        <div className="bento-bottom-mini">
+                          <div className="bento-price-mini">
+                            $ {formatearPrecio(p.precio)}
+                          </div>
+                          <button
+                            type="button"
+                            className="bento-add-mini"
+                            disabled={!disponible}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              agregarAlCarrito(p);
+                            }}
+                          >
+                            +
+                          </button>
+                        </div>
+                      </div>
+                    </Link>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </section>
       </div>
-
-    </div>
-
+    </Layout>
   );
-
 }
+
 export default Home;

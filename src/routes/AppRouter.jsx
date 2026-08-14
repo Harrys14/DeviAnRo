@@ -1,33 +1,28 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "../pages/Login";
 import Registro from "../pages/Registro";
 import Home from "../pages/Home";
 import Carrito from "../pages/Carrito";
 import Cuenta from "../pages/Cuenta";
 import Detalle from "../pages/Detalle";
-
+import Restaurante from "../pages/Restaurante";
+import MenuRestaurante from "../pages/MenuRestaurante";
 import { ProtectedRoute } from "../auth/ProtectedRoute";
 
 function AppRouter() {
   return (
     <BrowserRouter>
       <Routes>
-
-        {/* PUBLICAS */}
-        <Route path="/" element={<Login />} />
+        {/* PÚBLICAS: se ven sin login */}
+        <Route path="/" element={<Navigate to="/home" replace />} />
+        <Route path="/home" element={<Home />} />
+        <Route path="/login" element={<Login />} />
         <Route path="/registro" element={<Registro />} />
+        <Route path="/restaurante" element={<Restaurante />} />
+        <Route path="/restaurante/:id" element={<MenuRestaurante />} />
+        <Route path="/detalle/:id" element={<Detalle />} />
 
-        {/* PROTEGIDAS */}
-        <Route
-          path="/home"
-          element={
-            <ProtectedRoute>
-              <Home />
-            </ProtectedRoute>
-          }
-        />
-
+        {/* PROTEGIDAS: solo logueado */}
         <Route
           path="/carrito"
           element={
@@ -36,7 +31,6 @@ function AppRouter() {
             </ProtectedRoute>
           }
         />
-
         <Route
           path="/cuenta"
           element={
@@ -46,15 +40,8 @@ function AppRouter() {
           }
         />
 
-        <Route
-          path="/detalle/:id"
-          element={
-            <ProtectedRoute>
-              <Detalle />
-            </ProtectedRoute>
-          }
-        />
-
+        {/* Catch-all */}
+        <Route path="*" element={<Navigate to="/home" replace />} />
       </Routes>
     </BrowserRouter>
   );

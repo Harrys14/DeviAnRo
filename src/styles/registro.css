@@ -1,101 +1,329 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
 .registro-container {
-  width: 100 100vh;
+  min-height: calc(100vh - 80px);
   display: flex;
-  font-family: 'Segoe UI', Arial, sans-serif;
-  overflow: hidden;
-}
-
-/* ── IZQUIERDA (blanca, formulario) ── */
-.registro-left {
-  flex: 1;
-  background: #fff;
-  display: flex;
-  justify-content: center;
   align-items: center;
-  padding: 40px;
-  overflow-y: auto;
-  overflow-x: hidden;
+  justify-content: center;
+  padding: 40px 24px 60px;
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  background: var(--color-bg);
 }
 
-/* Clerk sin desborde */
-.clerk-signup-container {
-  width: 100 480px;
+.registro-wrap {
+  width: 100%;
+  max-width: 960px;
+  display: grid;
+  grid-template-columns: 0.95fr 1.05fr;
+  gap: 0;
+  border-radius: 32px;
+  overflow: hidden;
+  box-shadow: 0 30px 80px rgba(229, 57, 53, 0.15),
+              0 15px 40px rgba(26, 26, 46, 0.12);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
 }
 
-.clerk-signup-container .cl-rootBox {
-  width: 100 100 100 none !important;
-  border: none !important;
-  padding: 0 !important;
-  margin: 0 !important;
-}
-
-.clerk-signup-container .cl-main,
-.clerk-signup-container .cl-form {
-  width: 100 0 !important;
-}
-
-.clerk-signup-container .cl-formField,
-.clerk-signup-container .cl-formFieldRow {
-  width: 100 border-box !important;
-}
-
-.clerk-signup-container .cl-formFieldInput {
-  width: 100 border-box !important;
-}
-
-/* ── DERECHA (roja, marca) ── */
-.registro-right {
-  flex: 1;
-  background: #E53935;
-  color: white;
+.registro-form-wrap {
+  padding: 52px 44px;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  min-height: 620px;
+}
+
+.registro-form-head {
+  margin-bottom: 28px;
+}
+
+.registro-tab-title {
+  display: flex;
   align-items: center;
-  padding: 60px;
-  text-align: center;
+  gap: 12px;
+  margin-bottom: 10px;
 }
 
-.registro-title {
-  font-size: 72px;
-  margin-bottom: 20px;
+.registro-tab-emoji {
+  display: inline-block;
+  font-size: 32px;
+  animation: pop 2.8s ease-in-out infinite;
+  transform-origin: center;
 }
 
-.registro-description {
-  font-size: 24px;
-  text-align: center;
-  max-width: 500px;
+@keyframes pop {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  25% { transform: scale(1.1) rotate(-5deg); }
+  50% { transform: scale(1.05) rotate(3deg); }
+  75% { transform: scale(1.12) rotate(-2deg); }
+}
+
+.registro-form-title {
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -0.4px;
+  color: var(--color-text);
+  line-height: 1.15;
+}
+
+.registro-form-subtitle {
+  color: var(--color-text-muted);
+  font-size: 14.5px;
+  margin-top: 8px;
+  line-height: 1.5;
+}
+
+.registro-steps {
+  display: flex;
+  gap: 8px;
+  margin: 20px 0 28px;
+}
+
+.registro-step {
+  flex: 1;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--color-border);
+  overflow: hidden;
+}
+
+.registro-step.is-active {
+  background: linear-gradient(90deg, #e53935, #ff7043);
+  position: relative;
+}
+
+.registro-step.is-active::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  animation: shimmer 1.8s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.registro-banner {
+  position: relative;
+  padding: 48px 40px;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 620px;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.registro-banner-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(255, 183, 77, 0.4), transparent 55%),
+    radial-gradient(circle at 85% 70%, rgba(229, 57, 53, 0.55), transparent 50%),
+    radial-gradient(circle at 50% 100%, rgba(123, 31, 162, 0.3), transparent 55%),
+    linear-gradient(135deg, #ff7043 0%, #e53935 45%, #8e24aa 100%);
+  z-index: -2;
+}
+
+.registro-banner-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 15% 85%, rgba(255,255,255,0.1) 0, transparent 45%),
+    radial-gradient(circle at 85% 15%, rgba(255,255,255,0.12) 0, transparent 50%);
+}
+
+.registro-banner-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.registro-logo-badge {
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.2);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  border: 1px solid rgba(255,255,255,0.3);
+}
+
+.registro-banner-title {
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -0.4px;
+  line-height: 1.1;
+  margin-bottom: 12px;
+  text-shadow: 0 2px 16px rgba(0,0,0,0.18);
+}
+
+.registro-banner-sub {
+  font-size: 15px;
   line-height: 1.6;
+  opacity: 0.94;
+  margin-bottom: 28px;
 }
 
-/* ── MÓVIL ── */
+.registro-highlights {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.registro-highlight {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px 18px;
+  background: rgba(255,255,255,0.12);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 20px;
+  transition: transform 0.25s ease;
+}
+
+.registro-highlight:hover {
+  transform: translateX(5px);
+}
+
+.registro-highlight-icon {
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+}
+
+.registro-highlight-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.registro-highlight-title {
+  font-weight: 700;
+  font-size: 14.5px;
+}
+
+.registro-highlight-desc {
+  font-size: 12.5px;
+  opacity: 0.85;
+  line-height: 1.45;
+}
+
+.registro-banner-foot {
+  margin-top: 24px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  background: rgba(255,255,255,0.12);
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,0.18);
+}
+
+.registro-foot-icon {
+  font-size: 34px;
+  flex-shrink: 0;
+}
+
+.registro-foot-title {
+  font-weight: 700;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.registro-foot-sub {
+  font-size: 12.5px;
+  opacity: 0.9;
+  line-height: 1.4;
+}
+
+.registro-divider {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 24px 0;
+  color: var(--color-text-muted);
+  font-size: 12.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.registro-divider::before,
+.registro-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--color-border);
+}
+
+.clerk-auth-block {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.clerk-auth-block > div {
+  width: 100%;
+  box-shadow: none !important;
+  border: none !important;
+  background: transparent !important;
+}
+
+/* ============ RESPONSIVE ============ */
 @media (max-width: 900px) {
+  .registro-wrap {
+    grid-template-columns: 1fr;
+    max-width: 520px;
+  }
+  .registro-banner {
+    min-height: auto;
+    padding: 36px 30px 28px;
+    order: -1;
+  }
+  .registro-form-wrap {
+    padding: 40px 32px;
+    min-height: auto;
+  }
+  .registro-banner-title,
+  .registro-form-title {
+    font-size: 26px;
+  }
+}
+
+@media (max-width: 520px) {
   .registro-container {
-    flex-direction: column;
-    height: auto;
-    min-height: 100vh;
-    overflow: auto;
+    padding: 20px 16px 40px;
   }
-
-  .registro-right {
-    padding: 50px 20px;
+  .registro-wrap {
+    border-radius: 24px;
   }
-
-  .registro-title {
-    font-size: 46px;
+  .registro-banner {
+    padding: 28px 24px 22px;
   }
-
-  .registro-description {
-    font-size: 18px;
+  .registro-form-wrap {
+    padding: 32px 22px;
   }
-
-  .registro-left {
-    padding: 30px 20px;
+  .registro-banner-title,
+  .registro-form-title {
+    font-size: 22px;
+  }
+  .registro-banner-sub {
+    font-size: 14px;
+  }
+  .registro-highlight {
+    padding: 14px;
   }
 }

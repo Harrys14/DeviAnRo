@@ -1,14 +1,5 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { SignedIn, SignedOut, useUser } from "@clerk/clerk-react";
-
-import Login from "./pages/Login";
-import Registro from "./pages/Registro";
-import Home from "./pages/Home";
-import Carrito from "./pages/Carrito";
-import Cuenta from "./pages/Cuenta";
-import Detalle from "./pages/Detalle";
-import Restaurante from "./pages/Restaurante";
-import MenuRestaurante from "./pages/MenuRestaurante"; // 👈 NUEVO
+import { useUser } from "@clerk/clerk-react";
+import AppRouter from "./routes/AppRouter";
 
 function App() {
   const { isLoaded } = useUser();
@@ -27,92 +18,7 @@ function App() {
     );
   }
 
-  return (
-    <BrowserRouter>
-      <Routes>
-        {/* Login - Solo usuarios no logueados */}
-        <Route
-          path="/"
-          element={
-            <SignedOut>
-              <Login />
-            </SignedOut>
-          }
-        />
-
-        {/* Registro - público */}
-        <Route path="/registro" element={<Registro />} />
-
-        {/* Rutas protegidas */}
-        <Route
-          path="/home"
-          element={
-            <SignedIn>
-              <Home />
-            </SignedIn>
-          }
-        />
-
-        <Route
-          path="/carrito"
-          element={
-            <SignedIn>
-              <Carrito />
-            </SignedIn>
-          }
-        />
-
-        <Route
-          path="/cuenta"
-          element={
-            <SignedIn>
-              <Cuenta />
-            </SignedIn>
-          }
-        />
-
-        <Route
-          path="/detalle/:id"
-          element={
-            <SignedIn>
-              <Detalle />
-            </SignedIn>
-          }
-        />
-
-        <Route
-          path="/restaurante"
-          element={
-            <SignedIn>
-              <Restaurante />
-            </SignedIn>
-          }
-        />
-
-        {/* 👇 NUEVA RUTA */}
-        <Route
-          path="/restaurante/:id"
-          element={
-            <SignedIn>
-              <MenuRestaurante />
-            </SignedIn>
-          }
-        />
-
-        {/* Redirección para usuarios logueados que entren a / */}
-        <Route
-          path="/"
-          element={
-            <SignedIn>
-              <Navigate to="/home" replace />
-            </SignedIn>
-          }
-        />
-
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </BrowserRouter>
-  );
+  return <AppRouter />;
 }
 
 export default App;

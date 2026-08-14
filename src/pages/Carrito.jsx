@@ -1,417 +1,246 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { getProductos } from "../services/strapi";
+import { getProductos, obtenerImagen, crearPedido } from "../services/strapi";
+import { useUser } from "@clerk/clerk-react";
+import { useCart } from "../context/CartContext";
+import { useToast } from "../context/ToastContext";
+import Layout from "../components/Layout";
 import "../styles/carrito.css";
 
 function Carrito() {
-  const [carrito, setCarrito] = useState([]);
-  const [recomendaciones, setRecomendaciones] = useState([]);
+  const { items, updateQuantity, removeItem, totalPrice, clearCart, addItem } = useCart();
+  const { showToast } = useToast();
+  const { user } = useUser();
   const navigate = useNavigate();
 
-  // =========================
-  // OBTENER IMAGEN DE STRAPI
-  // =========================
-
-  const obtenerImagen = (producto) => {
-
-    let imagen = "https://via.placeholder.com/400";
-
-    const img = producto.imagen;
-
-    if (img?.data?.attributes?.url) {
-
-      imagen = `http://localhost:1337${img.data.attributes.url}`;
-
-    } else if (img?.url) {
-
-      imagen = `http://localhost:1337${img.url}`;
-
-    } else if (Array.isArray(img) && img.length > 0) {
-
-      imagen = `http://localhost:1337${img[0].url || img[0].attributes?.url}`;
-
-    }
-
-    return imagen;
-
-  };
-
-  // =========================
-  // CARGAR CARRITO
-  // =========================
+  const [recomendaciones, setRecomendaciones] = useState([]);
+  const [procesandoPago, setProcesandoPago] = useState(false);
 
   useEffect(() => {
-
-    const data =
-      JSON.parse(localStorage.getItem("carrito")) || [];
-
-    setCarrito(data);
-
-  }, []);
-
-  // =========================
-  // CARGAR RECOMENDACIONES DESDE STRAPI
-  // =========================
-
-  useEffect(() => {
-
     const cargarRecomendaciones = async () => {
-
       try {
-
         const productos = await getProductos();
-
-        const aleatorios =
-          [...productos]
-            .sort(() => Math.random() - 0.5)
-            .slice(0, 3);
-
+        const carritoIds = new Set(items.map((i) => i.id));
+        const sinCarrito = productos.filter((p) => !carritoIds.has(p.id));
+        const aleatorios = [...sinCarrito]
+          .sort(() => Math.random() - 0.5)
+          .slice(0, 3);
         setRecomendaciones(aleatorios);
-
-      } catch(error) {
-
-        console.error(
-          "Error cargando recomendaciones:",
-          error
-        );
-
+      } catch (error) {
+        console.error("Error cargando recomendaciones:", error);
       }
-
     };
-
     cargarRecomendaciones();
+  }, [items]);
 
-  }, []);
-
-  // =========================
-  // ACTUALIZAR CARRITO
-  // =========================
-
-  const actualizarCarrito = (nuevoCarrito) => {
-
-    setCarrito(nuevoCarrito);
-
-    localStorage.setItem(
-      "carrito",
-      JSON.stringify(nuevoCarrito)
-    );
-
-  };
-
-  // =========================
-  // AUMENTAR CANTIDAD
-  // =========================
-
-  const aumentar = (index) => {
-
-    const nuevo = [...carrito];
-
-    nuevo[index].cantidad =
-      (nuevo[index].cantidad || 1) + 1;
-
-    actualizarCarrito(nuevo);
-
-  };
-
-  // =========================
-  // DISMINUIR CANTIDAD
-  // =========================
-
-  const disminuir = (index) => {
-
-    const nuevo = [...carrito];
-
-    if ((nuevo[index].cantidad || 1) > 1) {
-
-      nuevo[index].cantidad -= 1;
-
-    } else {
-
-      nuevo.splice(index, 1);
-
+  const pagar = async () => {
+    if (!user?.id) {
+      showToast("Debes iniciar sesión para realizar el pedido", "warning");
+      return;
     }
-
-    actualizarCarrito(nuevo);
-
+    if (items.length === 0) {
+      showToast("Tu carrito está vacío", "warning");
+      return;
+    }
+    setProcesandoPago(true);
+    const pedidoData = {
+      items: items.map((i) => ({
+        id: i.id,
+        nombre: i.nombre,
+        precio: i.precio,
+        cantidad: i.cantidad || 1,
+      })),
+      total: totalPrice,
+      fecha: new Date().toISOString(),
+      estado: "pendiente",
+    };
+    const resultado = await crearPedido(pedidoData, user.id);
+    setProcesandoPago(false);
+    if (resultado && !resultado.error) {
+      showToast("✅ Pedido creado con éxito!", "success");
+      clearCart();
+      navigate("/cuenta");
+    } else {
+      showToast("❌ Error al crear el pedido. Intenta nuevamente.", "error");
+    }
   };
 
-  // =========================
-  // ELIMINAR PRODUCTO
-  // =========================
-
-  const eliminar = (index) => {
-
-    const nuevo =
-      carrito.filter(
-        (_, i) => i !== index
-      );
-
-    actualizarCarrito(nuevo);
-
+  const agregarRecomendacion = (producto) => {
+    addItem(producto, 1);
+    showToast(`${producto.nombre} agregado al carrito`, "success");
   };
 
-  // =========================
-  // TOTAL
-  // =========================
+  const subtotal = totalPrice;
+  const envio = items.length > 0 ? 3000 : 0;
+  const total = subtotal + envio;
 
-  const total = carrito.reduce(
-
-    (acc, item) => {
-
-      const precio =
-        Number(item.precio) || 0;
-
-      const cantidad =
-        item.cantidad || 1;
-
-      return acc + precio * cantidad;
-
-    },
-
-    0
-
-  );
-    return (
-
-    <>
-
+  return (
+    <Layout
+      headerProps={{
+        showBack: true,
+        onBack: () => navigate("/home"),
+      }}
+    >
       <div className="carrito-container">
+        {items.length === 0 ? (
+          <div className="carrito-vacio">
+            <div className="carrito-vacio-icon">🛒</div>
+            <h2>Tu carrito está vacío</h2>
+            <p>Agrega productos para comenzar tu pedido.</p>
+            <Link to="/home" className="carrito-comprar">
+              Ir a comprar
+            </Link>
+          </div>
+        ) : (
+          <>
+            <h1 className="carrito-title">🛒 Tu carrito</h1>
+            <p className="carrito-subtitle">
+              {items.reduce((acc, i) => acc + (i.cantidad || 1), 0)} items en tu
+              pedido
+            </p>
 
-        <div className="carrito-header">
+            <div className="carrito-lista">
+              {items.map((item, index) => (
+                <div
+                  className="carrito-item"
+                  key={item.id || index}
+                >
+                  <Link to={`/detalle/${item.id}`}>
+                    <img
+                      src={obtenerImagen(item.imagen)}
+                      alt={item.nombre}
+                    />
+                  </Link>
 
-          <Link
-            to="/home"
-            className="carrito-logo"
-          >
-            DeviAnRo
-          </Link>
-
-          <Link
-            to="/home"
-            className="carrito-volver"
-          >
-            ← Volver
-          </Link>
-
-        </div>
-
-        {
-          carrito.length === 0 ? (
-
-            <div className="carrito-vacio">
-
-              <div className="carrito-vacio-icon">
-                🛒
-              </div>
-
-              <h2>
-                Tu carrito está vacío
-              </h2>
-
-              <p>
-                Agrega productos para comenzar tu pedido.
-              </p>
-
-              <Link
-                to="/home"
-                className="carrito-comprar"
-              >
-                Ir a comprar
-              </Link>
-
-            </div>
-
-          ) : (
-
-            <>
-
-              <h1 className="carrito-title">
-                🛒 Tu carrito
-              </h1>
-
-              <p className="carrito-subtitle">
-                {carrito.length} productos seleccionados
-              </p>
-
-              <div className="carrito-lista">
-
-                {
-                  carrito.map((item, index) => (
-
-                    <div
-                      className="carrito-item"
-                      key={item.id || index}
+                  <div className="carrito-info">
+                    <Link
+                      to={`/detalle/${item.id}`}
+                      className="carrito-link"
                     >
+                      <h3>{item.nombre}</h3>
+                    </Link>
 
-                      <Link
-                        to={`/detalle/${item.id}`}
-                      >
-
-                        <img
-                          src={obtenerImagen(item)}
-                          alt={item.nombre}
-                        />
-
-                      </Link>
-
-                      <div className="carrito-info">
-
-                        <Link
-                          to={`/detalle/${item.id}`}
-                          className="carrito-link"
-                        >
-
-                          <h3>
-                            {item.nombre}
-                          </h3>
-
-                        </Link>
-
-                        <div className="carrito-precio">
-
-                          $
-                          {Number(item.precio || 0)
-                            .toLocaleString("es-CO")}
-
-                        </div>
-
-                        <div className="carrito-controles">
-
-                          <button
-                            onClick={() => disminuir(index)}
-                          >
-                            −
-                          </button>
-
-                          <span>
-                            {item.cantidad || 1}
-                          </span>
-
-                          <button
-                            onClick={() => aumentar(index)}
-                          >
-                            +
-                          </button>
-
-                        </div>
-
-                        <button
-                          className="carrito-eliminar"
-                          onClick={() => eliminar(index)}
-                        >
-                          Eliminar
-                        </button>
-
-                      </div>
-
+                    <div className="carrito-precio">
+                      ${Number(item.precio || 0).toLocaleString("es-CO")}
                     </div>
 
-                  ))
-                }
+                    <div className="carrito-controles">
+                      <button
+                        aria-label="Disminuir cantidad"
+                        onClick={() => updateQuantity(index, -1)}
+                      >
+                        −
+                      </button>
+                      <span>{item.cantidad || 1}</span>
+                      <button
+                        aria-label="Aumentar cantidad"
+                        onClick={() => updateQuantity(index, 1)}
+                      >
+                        +
+                      </button>
+                    </div>
 
+                    <button
+                      className="carrito-eliminar"
+                      onClick={() => removeItem(index)}
+                    >
+                      Eliminar
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="carrito-total">
+              <div
+                style={{
+                  width: "100%",
+                  maxWidth: "380px",
+                  marginLeft: "auto",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "8px",
+                  fontSize: "15px",
+                  color: "var(--color-text-soft)",
+                  marginBottom: "12px",
+                }}
+              >
+                <div style={{ display: "flex", justifyContent: "space-between" }}>
+                  <span>Subtotal</span>
+                  <span>${subtotal.toLocaleString("es-CO")}</span>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between" }}>
+                  <span>Envío</span>
+                  <span>${envio.toLocaleString("es-CO")}</span>
+                </div>
               </div>
-
-              <div className="carrito-total">
-
-                <h2>
-                  Total:
-                  $
-                  {total.toLocaleString("es-CO")}
-                </h2>
-
-                <button className="btn-pagar">
-                  💳 Pagar ahora
-                </button>
-
-              </div>
-
-            </>
-
-          )
-
-        }
-
+              <h2>Total: ${total.toLocaleString("es-CO")}</h2>
+              <button
+                className="btn-pagar"
+                disabled={procesandoPago}
+                onClick={pagar}
+              >
+                {procesandoPago ? "Procesando..." : "💳 Pagar ahora"}
+              </button>
+            </div>
+          </>
+        )}
       </div>
 
-      {/* =========================
-          RECOMENDACIONES
-      ========================= */}
-
-      {
-        recomendaciones.length > 0 && (
-
-          <div className="carrito-recomendaciones">
-
-
-            <div className="recomendaciones-header">
-
-              <h2>
-                🍔 Lo recomendado para ti
-              </h2>
-
-              <p>
-                Descubre algunos productos que podrían gustarte.
-              </p>
-
-            </div>
-
-
-
-            <div className="recomendaciones-grid">
-
-              {
-                recomendaciones.map((producto) => (
-
-                  <div
-                    key={producto.id}
-                    className="recomendacion-card"
-                    onClick={() =>
-                      navigate(`/detalle/${producto.id}`)
-                    }
-                  >
-
-                    <img
-                      src={obtenerImagen(producto)}
-                      alt={producto.nombre}
-                    />
-
-
-                    <div className="recomendacion-info">
-
-                      <h4>
-                        {producto.nombre}
-                      </h4>
-
-                      <p>
-                        $
-                        {Number(producto.precio || 0)
-                          .toLocaleString("es-CO")}
-                      </p>
-
-                    </div>
-
-
-                  </div>
-
-                ))
-              }
-
-
-            </div>
-
-
+      {recomendaciones.length > 0 && (
+        <div className="carrito-recomendaciones">
+          <div className="recomendaciones-header">
+            <h2>🍔 Lo recomendado para ti</h2>
+            <p>Descubre algunos productos que podrían gustarte.</p>
           </div>
 
-        )
+          <div className="recomendaciones-grid">
+            {recomendaciones.map((producto) => (
+              <div
+                key={producto.id}
+                className="recomendacion-card"
+              >
+                <img
+                  src={obtenerImagen(producto.imagen)}
+                  alt={producto.nombre}
+                  onClick={() => navigate(`/detalle/${producto.id}`)}
+                  style={{ cursor: "pointer" }}
+                />
 
-      }
-
-
-    </>
-
+                <div className="recomendacion-info">
+                  <h4 onClick={() => navigate(`/detalle/${producto.id}`)} style={{ cursor: "pointer" }}>
+                    {producto.nombre}
+                  </h4>
+                  <p>
+                    ${Number(producto.precio || 0).toLocaleString("es-CO")}
+                  </p>
+                  <button
+                    type="button"
+                    className="menu-btn"
+                    style={{
+                      width: "100%",
+                      marginTop: "10px",
+                      padding: "10px 14px",
+                      fontSize: "14px",
+                      borderRadius: "10px",
+                      background: "var(--color-primary)",
+                      color: "white",
+                      border: "none",
+                      fontWeight: 700,
+                      cursor: "pointer",
+                    }}
+                    onClick={agregarRecomendacion.bind(null, producto)}
+                  >
+                    + Agregar
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </Layout>
   );
-
 }
-
 
 export default Carrito;
