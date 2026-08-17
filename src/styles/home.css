@@ -822,3 +822,24 @@
     height: 160px;
   }
 }
+/*No Resaltar*/
+button {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+button {
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: pointer;
+}* {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+input,
+textarea {
+  user-select: text;
+  -webkit-user-select: text;
+}
