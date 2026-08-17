@@ -116,6 +116,18 @@ function Home() {
     const cargarDatos = async () => {
       try {
         const productosData = await getProductos();
+        console.log("PRODUCTOS COMPLETOS:", productosData);
+
+productosData.forEach((producto) => {
+  console.log(
+    "PRODUCTO:",
+    producto.nombre,
+    "| RESTAURANTE:",
+    producto.restaurante?.nombre,
+    "| ID RESTAURANTE:",
+    producto.restaurante?.id
+  );
+});
 
         setProductos(
           Array.isArray(productosData) ? productosData : []
